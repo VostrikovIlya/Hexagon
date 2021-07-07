@@ -16,6 +16,4 @@ public class Controller {
     public void setLabelEndGame(){
         view.setSrt(model.getLabelEndGame());
     }
-
-
 }

@@ -12,9 +12,9 @@ import javafx.scene.text.Font;
 
 
 public class View {
-    private final Group HexGroup = new Group();                                        //group for rendering
-    private final Hex[][] board = new Hex[7][7];                                                       //game map
-    private final Trio trio;                                                            //store the move player
+    private final Group HexGroup = new Group();
+    private final Hex[][] board = new Hex[7][7];
+    private final Trio trio;
     private Scene scene;
     private String str;
     private FlowPane root;
@@ -40,7 +40,7 @@ public class View {
 
         for (int i = 0; i < Model.HEX_BOARD_LEN; i++) {
             for (int j = 0; j < Model.HEX_BOARD_LEN; j++) {
-                if (i + j > 2 && i + j < 10) {                                         //cuts the corners of the matrix (board) for a hexagonal view
+                if (i + j > 2 && i + j < 10) {
                     board[i][j] = makeHex(i,j);
                     HexGroup.getChildren().add(board[i][j]);
                 }
@@ -58,27 +58,27 @@ public class View {
     private Hex makeHex(int i, int j){
         Hex hex = new Hex(i, j, Player.NOT_PLAYER);
         hex.setOnMouseClicked(e ->{
-            if(hex.getClick()) {                                                     //if second click on the field = deselecting
+            if(hex.getClick()) {
                 hex.setClick(false);
                 trio.setElementary(null);
-                trio.setFinite(null);                                                //reset the stroke
-                illuminationMove(hex, false);                                   //turn off the stroke light
+                trio.setFinite(null);
+                illuminationMove(hex, false);
             }
             else{
-                if(hex.getPlayer() == Player.PLAYER) {                                                //if  click on the player's field
-                    if(trio.getElementary() != null && trio.getElementary().getClick()) {            //if there is already a click on another field
-                        trio.getElementary().setClick(false);                                          //deleting the previous click
-                        illuminationMove(trio.getElementary(), false);           //turn off previous stroke click
+                if(hex.getPlayer() == Player.PLAYER) {
+                    if(trio.getElementary() != null && trio.getElementary().getClick()) {
+                        trio.getElementary().setClick(false);
+                        illuminationMove(trio.getElementary(), false);
                     }
-                    trio.setElementary(hex);                                            //remember the selected field
-                    illuminationMove(hex, true);                                  //turn on the stroke light
+                    trio.setElementary(hex);
+                    illuminationMove(hex, true);
                     hex.setClick(true);
                 }
                 else {
-                    if(hex.getIllumination() && trio.getElementary() != null){         //if click on illumination field
+                    if(hex.getIllumination() && trio.getElementary() != null){
                         trio.getElementary().setClick(false);
-                        illuminationMove(trio.getElementary(), false);            //turn off illumination, but  move completed
-                        trio.setFinite(hex);                                           //remember finite field
+                        illuminationMove(trio.getElementary(), false);
+                        trio.setFinite(hex);
                     }
                 }
             }
@@ -118,9 +118,9 @@ public class View {
         for(int i = 0; i < Model.HEX_BOARD_LEN; i++)
             for(int j = 0; j < Model.HEX_BOARD_LEN; j++){
                 if(board[i][j] != null){
-                    int distance = Hex.hexDistance(hex, board[i][j]);                      //the distance from the player's field is calculated
-                    if (distance <= 2 && board[i][j].getPlayer() == Player.NOT_PLAYER)     //if the distance is within the turn and the field is not occupied by the player
-                        board[i][j].setIllumination(light);                                //highlighting
+                    int distance = Hex.hexDistance(hex, board[i][j]);
+                    if (distance <= 2 && board[i][j].getPlayer() == Player.NOT_PLAYER)
+                        board[i][j].setIllumination(light);
                 }
             }
      }
