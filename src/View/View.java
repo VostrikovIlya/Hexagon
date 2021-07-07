@@ -10,7 +10,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-
 public class View {
     private final Group HexGroup = new Group();
     private final Hex[][] board = new Hex[7][7];
