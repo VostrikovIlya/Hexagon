@@ -4,16 +4,23 @@ import Model.*;
 import View.View;
 
 public class Controller {
-    private View view;
-    private Model model;
+    private final View view;
 
-    public Controller(View view, Model model){
-        this.model = model;
+    public Controller(View view){
         this.view = view;
-        model.setBoard(view.getBoard());
-        model.setTrio(view.getTrio());
     }
-    public void setLabelEndGame(){
-        view.setSrt(model.getLabelEndGame());
+    public void setLabelEndGame(String str){
+        view.setSrt(str);
+    }
+    public Hex[][] getBoard(){
+        return view.getBoard();
+    }
+
+    public Trio getTrio(){
+        return view.getTrio();
+    }
+
+    public BooleanMut getBackMove(){
+        return view.getBackMove();
     }
 }

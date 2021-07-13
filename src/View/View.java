@@ -5,23 +5,25 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-
 public class View {
     private final Group HexGroup = new Group();
-    private final Hex[][] board = new Hex[7][7];
+    private Hex[][] board = new Hex[7][7];
     private final Trio trio;
-    private Scene scene;
+    private final Scene scene;
     private String str;
     private FlowPane root;
+    private BooleanMut backMove;
     /*
     Creates a scene with hexagonal fields and the players ' starting chips
      */
     public View(){
+        backMove = new BooleanMut();
         scene = new Scene(create());
         scene.setFill(Color.rgb(2,32,39));
         trio = new Trio(null,null, 0);
@@ -30,18 +32,26 @@ public class View {
     private Parent create() {
         root = new FlowPane();
         root.setAlignment(Pos.CENTER);
-        root.setPrefSize(630, 550);
+        root.setPrefSize(800, 600);
         root.getChildren().addAll(HexGroup);
         root.setOnMouseClicked((e)->{
             if(str != null){
                 endScene();
             }
         });
-
+        Button button = new Button("Back");
+        button.setMaxSize(100,40);
+        button.setOnMouseClicked((e)->{
+            backMove.value = true;
+            setBoard();
+        });
+        root.getChildren().add(button);
+        root.setHgap(50);
+        root.setStyle("-fx-background-color: null;");
         for (int i = 0; i < Model.HEX_BOARD_LEN; i++) {
             for (int j = 0; j < Model.HEX_BOARD_LEN; j++) {
                 if (i + j > 2 && i + j < 10) {
-                    board[i][j] = makeHex(i,j);
+                    board[i][j] = makeHex(i,j, Player.NOT_PLAYER);
                     HexGroup.getChildren().add(board[i][j]);
                 }
             }
@@ -55,8 +65,8 @@ public class View {
     The method overrides clicking on the field and generates the field.
     Takes the coordinates of the field that creates.
      */
-    private Hex makeHex(int i, int j){
-        Hex hex = new Hex(i, j, Player.NOT_PLAYER);
+    private Hex makeHex(int i, int j, int player){
+        Hex hex = new Hex(i, j, player);
         hex.setOnMouseClicked(e ->{
             if(hex.getClick()) {
                 hex.setClick(false);
@@ -93,6 +103,7 @@ public class View {
     public void endScene(){
         Label label = new Label(str);
         label.setFont(Font.font(32));
+        label.setTextFill(Color.WHITESMOKE);
         root.getChildren().clear();
         root.getChildren().add(label);
     }
@@ -124,4 +135,19 @@ public class View {
                 }
             }
      }
+
+     public void setBoard()  {
+        Hex[][] boardTmp = Model.loadGame();
+        HexGroup.getChildren().clear();
+        for(int i = 0; i < Model.HEX_BOARD_LEN; i++){
+            for(int j = 0; j < Model.HEX_BOARD_LEN; j++){
+                assert boardTmp != null;
+                if(boardTmp[i][j] != null) {
+                    board[i][j] = makeHex(i,j,boardTmp[i][j].getPlayer());
+                    HexGroup.getChildren().add(board[i][j]);
+                }
+            }
+        }
+     }
+     public BooleanMut getBackMove(){return backMove;}
 }

@@ -2,9 +2,15 @@ package Model;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+
+import java.io.PushbackInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Hex extends Polygon implements Cloneable {
+public class Hex extends Polygon implements Cloneable, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private final int x;
     private final int y;
     public static final int HEXSIZE = 40;
@@ -12,14 +18,12 @@ public class Hex extends Polygon implements Cloneable {
     private boolean click = false;
     private boolean illumination = false;
 
-
     public Hex(int x, int y, int player){
         this.player = player;
         this.x = x;
         this.y = y;
         double[] centres = calculatePixelHexCentre(x, y);
         Double[] edges = calculateHexEdges(centres[0], centres[1], HEXSIZE-1);
-
         this.getPoints().addAll(edges);
 
         if(player == Player.PLAYER)
@@ -133,8 +137,9 @@ public class Hex extends Polygon implements Cloneable {
     }
 
     @Override
-    protected Hex clone() throws CloneNotSupportedException {
+    public Hex clone() throws CloneNotSupportedException {
         return new Hex(x, y, player);
     }
+
 }
 
