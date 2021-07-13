@@ -7,8 +7,8 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
     private final View view = new View();
-    private final Model model = new Model();
-    private final Controller controller = new Controller(view,model);
+    private final Controller controller = new Controller(view);
+    private final Model model = new Model(controller);
     public void start(Stage stage) {
         stage.setTitle("Hexagon");
         stage.setScene(view.getScene());
@@ -19,15 +19,11 @@ public class Main extends Application {
             System.exit(0);
         });
 
-        Thread thr = new Thread(()->{
-            model.start();
-            controller.setLabelEndGame();
-        });
+        Thread thr = new Thread(model::start);
         thr.start();
     }
 
     public static void main(String[] args) {
-
         launch(args);
     }
 }

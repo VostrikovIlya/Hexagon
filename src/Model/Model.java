@@ -1,6 +1,11 @@
 package Model;
 
+import Conrol.Controller;
+
+import java.io.*;
+
 public class Model {
+    private final Controller controller;
     public static final int HEX_BOARD_LEN = 7;
     private  Hex[][] board;
     private final Player player;
@@ -9,9 +14,14 @@ public class Model {
     private  Trio trio;
     private boolean endGame;
     private String labelEndGame;
+    private final BooleanMut backMove;
 
 
-    public Model(){
+    public Model(Controller controller){
+        this.controller = controller;
+        this.board = controller.getBoard();
+        this.trio = controller.getTrio();
+        this.backMove = controller.getBackMove();
         bot = new Bot();
         player = new Player();
         movePlayer = true;
@@ -19,13 +29,21 @@ public class Model {
     }
 
     public void start(){
+        saveGame();
         while(!endGame){
             if(movePlayer){
+                if(backMove.value){
+                    board = controller.getBoard();
+                    backMove.value = false;
+                }
                 if(trio.getElementary() != null && trio.getFinite() != null){
+                    saveGame();
                     player.move(trio.getElementary(),trio.getFinite(), board, Player.PLAYER);
                     trio.setElementary(null);
                     trio.setFinite(null);
                     movePlayer = false;
+
+                    backMove.value = false;
                 }
             }
             else {
@@ -33,10 +51,12 @@ public class Model {
                 trio.setElementary(null);
                 trio.setFinite(null);
                 movePlayer = true;
+                backMove.value = false;
             }
             endGame();
         }
         LabelEndGame();
+        controller.setLabelEndGame(labelEndGame);
     }
 
     public void endGame(){
@@ -72,13 +92,30 @@ public class Model {
         }
     }
 
+    private void saveGame()  {
+        try(ObjectOutputStream ois  = new ObjectOutputStream(new FileOutputStream("game.dat"))){
+            ois.writeObject(board);
+        }catch (IOException ex){
+            ex.fillInStackTrace();
+        }
+    }
+
+    public static Hex[][] loadGame(){
+        try(ObjectInputStream ous  = new ObjectInputStream(new FileInputStream("game.dat"))){
+            return  (Hex[][]) ous.readObject();
+        }catch (IOException | ClassNotFoundException ex){
+            ex.fillInStackTrace();
+        }
+        return null;
+    }
+
     private void LabelEndGame(){
         if(player.getSizeChips() > bot.getSizeChips())
-            labelEndGame = new String("WIN PLAYER");
+            labelEndGame = "WIN PLAYER";
         if(bot.getSizeChips() > player.getSizeChips())
-            labelEndGame = new String("WIN BOT");
+            labelEndGame = "WIN BOT";
         if(bot.getSizeChips() == player.getSizeChips())
-            labelEndGame = new String("DRAW");
+            labelEndGame = "DRAW";
     }
 
     public String getLabelEndGame(){return labelEndGame;}
