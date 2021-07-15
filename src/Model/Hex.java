@@ -2,8 +2,6 @@ package Model;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-
-import java.io.PushbackInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -11,12 +9,14 @@ import java.util.Objects;
 public class Hex extends Polygon implements Cloneable, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public transient static final int HEXSIZE = 40;
+
     private final int x;
     private final int y;
-    public static final int HEXSIZE = 40;
     private int player;
-    private boolean click = false;
-    private boolean illumination = false;
+    private transient boolean click = false;
+    private transient boolean illumination = false;
 
     public Hex(int x, int y, int player){
         this.player = player;

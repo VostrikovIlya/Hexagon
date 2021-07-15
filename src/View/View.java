@@ -11,14 +11,16 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+import java.io.*;
+
 public class View {
     private final Group HexGroup = new Group();
-    private Hex[][] board = new Hex[7][7];
+    private final Hex[][] board = new Hex[7][7];
     private final Trio trio;
     private final Scene scene;
     private String str;
     private FlowPane root;
-    private BooleanMut backMove;
+    private final BooleanMut backMove;
     /*
     Creates a scene with hexagonal fields and the players ' starting chips
      */
@@ -39,15 +41,24 @@ public class View {
                 endScene();
             }
         });
-        Button button = new Button("Back");
-        button.setMaxSize(100,40);
+
+        Button button = new Button("LoadSave");
+        button.setMaxSize(100,50);
         button.setOnMouseClicked((e)->{
             backMove.value = true;
             setBoard();
         });
+
+        Button button1 = new Button("SaveGame");
+        button1.setMaxSize(100,50);
+        button1.setOnMouseClicked((e)-> saveGame());
+
         root.getChildren().add(button);
+        root.getChildren().add(button1);
+
         root.setHgap(50);
         root.setStyle("-fx-background-color: null;");
+
         for (int i = 0; i < Model.HEX_BOARD_LEN; i++) {
             for (int j = 0; j < Model.HEX_BOARD_LEN; j++) {
                 if (i + j > 2 && i + j < 10) {
@@ -137,17 +148,35 @@ public class View {
      }
 
      public void setBoard()  {
-        Hex[][] boardTmp = Model.loadGame();
-        HexGroup.getChildren().clear();
-        for(int i = 0; i < Model.HEX_BOARD_LEN; i++){
-            for(int j = 0; j < Model.HEX_BOARD_LEN; j++){
-                assert boardTmp != null;
-                if(boardTmp[i][j] != null) {
-                    board[i][j] = makeHex(i,j,boardTmp[i][j].getPlayer());
-                    HexGroup.getChildren().add(board[i][j]);
-                }
-            }
-        }
+        Hex[][] boardTmp = loadGame();
+         if(boardTmp != null){
+             HexGroup.getChildren().clear();
+             for (int i = 0; i < Model.HEX_BOARD_LEN; i++) {
+                 for (int j = 0; j < Model.HEX_BOARD_LEN; j++) {
+                     if (boardTmp[i][j] != null) {
+                         board[i][j] = makeHex(i, j, boardTmp[i][j].getPlayer());
+                         HexGroup.getChildren().add(board[i][j]);
+                     }
+                 }
+             }
+         }
      }
      public BooleanMut getBackMove(){return backMove;}
+
+    public  void saveGame()  {
+        try(ObjectOutputStream ois  = new ObjectOutputStream(new FileOutputStream("game.dat"))){
+            ois.writeObject(board);
+        }catch (IOException ex){
+            ex.fillInStackTrace();
+        }
+    }
+
+    public  Hex[][] loadGame(){
+        try(ObjectInputStream ous  = new ObjectInputStream(new FileInputStream("game.dat"))){
+            return  (Hex[][]) ous.readObject();
+        }catch (IOException | ClassNotFoundException ex){
+            ex.fillInStackTrace();
+        }
+        return null;
+    }
 }

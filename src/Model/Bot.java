@@ -6,7 +6,7 @@ public class Bot extends Player {
     public static final int BOT = 2;
     public Trio res;
     public int minmax(Hex[][] map, int side, int count, int a, int b) {
-        if(count == 2) {
+        if(count == 1) {
             return endGame(map);
         }
 

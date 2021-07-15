@@ -29,15 +29,13 @@ public class Model {
     }
 
     public void start(){
-        saveGame();
         while(!endGame){
+            if(backMove.value){
+                board = controller.getBoard();
+                backMove.value = false;
+            }
             if(movePlayer){
-                if(backMove.value){
-                    board = controller.getBoard();
-                    backMove.value = false;
-                }
                 if(trio.getElementary() != null && trio.getFinite() != null){
-                    saveGame();
                     player.move(trio.getElementary(),trio.getFinite(), board, Player.PLAYER);
                     trio.setElementary(null);
                     trio.setFinite(null);
@@ -92,22 +90,7 @@ public class Model {
         }
     }
 
-    private void saveGame()  {
-        try(ObjectOutputStream ois  = new ObjectOutputStream(new FileOutputStream("game.dat"))){
-            ois.writeObject(board);
-        }catch (IOException ex){
-            ex.fillInStackTrace();
-        }
-    }
 
-    public static Hex[][] loadGame(){
-        try(ObjectInputStream ous  = new ObjectInputStream(new FileInputStream("game.dat"))){
-            return  (Hex[][]) ous.readObject();
-        }catch (IOException | ClassNotFoundException ex){
-            ex.fillInStackTrace();
-        }
-        return null;
-    }
 
     private void LabelEndGame(){
         if(player.getSizeChips() > bot.getSizeChips())
@@ -117,14 +100,6 @@ public class Model {
         if(bot.getSizeChips() == player.getSizeChips())
             labelEndGame = "DRAW";
     }
-
-    public String getLabelEndGame(){return labelEndGame;}
-
-    public  void setBoard(Hex[][] board){
-        this.board = board;
-    }
-
-    public void setTrio(Trio trio){this.trio = trio;}
 
     public void setEndGame(boolean endGame){ this.endGame = endGame;}
 }
