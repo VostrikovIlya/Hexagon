@@ -1,23 +1,21 @@
-package Model;
+package model;
 
-import Conrol.Controller;
-
-import java.io.*;
+import conrol.Controller;
 
 public class Model {
-    private final Controller controller;
     public static final int HEX_BOARD_LEN = 7;
-    private  Hex[][] board;
+    private final Controller controller;
     private final Player player;
     private final Bot bot;
+    private final Trio trio;
+    private final BooleanMut backMove;
+    private Hex[][] board;
     private boolean movePlayer;
-    private  Trio trio;
     private boolean endGame;
     private String labelEndGame;
-    private final BooleanMut backMove;
 
 
-    public Model(Controller controller){
+    public Model(Controller controller) {
         this.controller = controller;
         this.board = controller.getBoard();
         this.trio = controller.getTrio();
@@ -28,23 +26,22 @@ public class Model {
         endGame = false;
     }
 
-    public void start(){
-        while(!endGame){
-            if(backMove.value){
+    public void start() {
+        while (!endGame) {
+            if (backMove.value) {
                 board = controller.getBoard();
                 backMove.value = false;
             }
-            if(movePlayer){
-                if(trio.getElementary() != null && trio.getFinite() != null){
-                    player.move(trio.getElementary(),trio.getFinite(), board, Player.PLAYER);
+            if (movePlayer) {
+                if (trio.getElementary() != null && trio.getFinite() != null) {
+                    player.move(trio.getElementary(), trio.getFinite(), board, Player.PLAYER);
                     trio.setElementary(null);
                     trio.setFinite(null);
                     movePlayer = false;
 
                     backMove.value = false;
                 }
-            }
-            else {
+            } else {
                 bot.moveBot(board);
                 trio.setElementary(null);
                 trio.setFinite(null);
@@ -57,13 +54,17 @@ public class Model {
         controller.setLabelEndGame(labelEndGame);
     }
 
-    public void endGame(){
+    public void setEndGame(boolean endGame) {
+        this.endGame = endGame;
+    }
+
+    public void endGame() {
         endGame = true;
-        for(int i = 0 ;i < HEX_BOARD_LEN; i++) {
+        for (int i = 0; i < HEX_BOARD_LEN; i++) {
             for (int j = 0; j < HEX_BOARD_LEN; j++) {
                 if (board[i][j] != null && board[i][j].getPlayer() == Player.NOT_PLAYER) {
                     endGame = false;
-                    if(player.containsChips(board[i][j]))
+                    if (player.containsChips(board[i][j]))
                         player.removeChips(board[i][j]);
                     if (bot.containsChips(board[i][j]))
                         bot.removeChips(board[i][j]);
@@ -81,25 +82,24 @@ public class Model {
                 }
             }
         }
-        if(endGame)
+        if (endGame)
             return;
-        if(!player.isHaveMove(board) || player.getSizeChips() == 0)
+        if (!player.isHaveMove(board) || player.getSizeChips() == 0)
             endGame = true;
-        if(!bot.isHaveMove(board) || bot.getSizeChips() == 0) {
+        if (!bot.isHaveMove(board) || bot.getSizeChips() == 0) {
             endGame = true;
         }
     }
 
 
-
-    private void LabelEndGame(){
-        if(player.getSizeChips() > bot.getSizeChips())
+    private void LabelEndGame() {
+        if (player.getSizeChips() > bot.getSizeChips())
             labelEndGame = "WIN PLAYER";
-        if(bot.getSizeChips() > player.getSizeChips())
+        if (bot.getSizeChips() > player.getSizeChips())
             labelEndGame = "WIN BOT";
-        if(bot.getSizeChips() == player.getSizeChips())
+        if (bot.getSizeChips() == player.getSizeChips())
             labelEndGame = "DRAW";
     }
 
-    public void setEndGame(boolean endGame){ this.endGame = endGame;}
+
 }

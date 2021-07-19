@@ -1,7 +1,7 @@
-package Conrol;
+package conrol;
 
-import Model.*;
-import View.View;
+import model.*;
+import view.View;
 
 public class Controller {
     private final View view;
@@ -9,9 +9,11 @@ public class Controller {
     public Controller(View view){
         this.view = view;
     }
+
     public void setLabelEndGame(String str){
         view.setSrt(str);
     }
+
     public Hex[][] getBoard(){
         return view.getBoard();
     }
