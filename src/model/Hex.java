@@ -29,7 +29,7 @@ public class Hex extends Polygon implements Cloneable, Serializable {
 
         if (player == Player.PLAYER)
             setFill(Color.ORANGE);
-        if (player == Bot.BOT)
+        if (player == Bot.BOT || player == Player.PLAYER_TWO)
             setFill(Color.LIGHTSKYBLUE);
         if (player == Player.NOT_PLAYER)
             setFill(Color.LAVENDER);
@@ -53,8 +53,12 @@ public class Hex extends Polygon implements Cloneable, Serializable {
         this.click = click;
         if (click)
             setFill(Color.SEAGREEN);
-        else
+        else if (player == Player.PLAYER){
             setFill(Color.ORANGE);
+        }
+        else if (player == Bot.BOT){
+            setFill(Color.LIGHTSKYBLUE);
+        }
     }
 
     public void setIllumination(boolean illumination) {
@@ -69,7 +73,7 @@ public class Hex extends Polygon implements Cloneable, Serializable {
         player = pl;
         if (player == Player.PLAYER)
             setFill(Color.ORANGE);
-        if (player == Bot.BOT)
+        if (player == Bot.BOT || player == Player.PLAYER_TWO)
             setFill(Color.LIGHTSKYBLUE);
         if (player == Player.NOT_PLAYER)
             setFill(Color.LAVENDER);

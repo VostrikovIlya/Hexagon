@@ -3,7 +3,6 @@ package view;
 import model.*;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,24 +18,31 @@ public class View {
     private final Scene scene;
     private final Trio trio;
     private final BooleanMut backMove;
-    private String str;
-    private FlowPane root;
-
+    private final BooleanMut movePlayer;
+    private final IntegerMut gameBot;
+    private final FlowPane root;
+    private String stringEnd;
 
     public View() {
-        scene = new Scene(create());
+        root = new FlowPane();
+        scene = new Scene(root);
         scene.setFill(Color.rgb(2, 32, 39));
         trio = new Trio(null, null, 0);
+        movePlayer = new BooleanMut(true);
+        gameBot = new IntegerMut();
         backMove = new BooleanMut();
-    }
-
-    private Parent create() {
-        root = new FlowPane();
         root.setAlignment(Pos.CENTER);
         root.setPrefSize(800, 600);
+        root.setHgap(50);
+        root.setStyle("-fx-background-color: null;");
+        startScene();
+    }
+
+    private void create() {
+        root.getChildren().clear();
         root.getChildren().addAll(HexGroup);
         root.setOnMouseClicked((e) -> {
-            if (str != null) {
+            if (stringEnd != null) {
                 endScene();
             }
         });
@@ -55,9 +61,6 @@ public class View {
         root.getChildren().add(button);
         root.getChildren().add(button1);
 
-        root.setHgap(50);
-        root.setStyle("-fx-background-color: null;");
-
         for (int i = 0; i < Model.HEX_BOARD_LEN; i++) {
             for (int j = 0; j < Model.HEX_BOARD_LEN; j++) {
                 if (i + j > 2 && i + j < 10) {
@@ -67,33 +70,31 @@ public class View {
             }
         }
         setChipsStart();
-        return root;
     }
 
     private Hex makeHex(int i, int j, int player) {
         Hex hex = new Hex(i, j, player);
-        hex.setOnMouseClicked(e -> {
-            if (hex.getClick()) {
-                hex.setClick(false);
-                trio.setElementary(null);
-                trio.setFinite(null);
-                illuminationMove(hex, false);
-            } else {
-                if (hex.getPlayer() == Player.PLAYER) {
-                    if (trio.getElementary() != null && trio.getElementary().getClick()) {
+        hex.setOnMouseClicked((event) -> {
+            if (hex.getPlayer() == Player.PLAYER && movePlayer.value
+                    || hex.getPlayer() == Bot.BOT && !movePlayer.value) {
+                if (hex.getClick()) {
+                    hex.setClick(false);
+                    trio.setElementary(null);
+                    trio.setFinite(null);
+                    illuminationMove(hex, false);
+                } else {
+                    hex.setClick(true);
+                    if (trio.getElementary() != null) {
                         trio.getElementary().setClick(false);
                         illuminationMove(trio.getElementary(), false);
                     }
                     trio.setElementary(hex);
                     illuminationMove(hex, true);
-                    hex.setClick(true);
-                } else {
-                    if (hex.getIllumination() && trio.getElementary() != null) {
-                        trio.getElementary().setClick(false);
-                        illuminationMove(trio.getElementary(), false);
-                        trio.setFinite(hex);
-                    }
                 }
+            } else if (hex.getIllumination() && trio.getElementary() != null) {
+                trio.getElementary().setClick(false);
+                illuminationMove(trio.getElementary(), false);
+                trio.setFinite(hex);
             }
         });
         return hex;
@@ -115,8 +116,16 @@ public class View {
         return backMove;
     }
 
+    public IntegerMut getGameBot() {
+        return gameBot;
+    }
+
+    public BooleanMut getMovePlayer() {
+        return movePlayer;
+    }
+
     public void setSrt(String str) {
-        this.str = str;
+        this.stringEnd = str;
     }
 
     private void setChipsStart() {
@@ -154,8 +163,27 @@ public class View {
         }
     }
 
+    public void startScene() {
+        Label label1 = new Label("BOT");
+        Label label2 = new Label("PLAYER");
+        label1.setFont(Font.font(32));
+        label1.setTextFill(Color.WHITESMOKE);
+        label2.setFont(Font.font(32));
+        label2.setTextFill(Color.WHITESMOKE);
+        label1.setOnMouseClicked(event -> {
+            gameBot.value = Bot.BOT;
+            create();
+        });
+        label2.setOnMouseClicked(event -> {
+            gameBot.value = Player.PLAYER;
+            create();
+        });
+        root.getChildren().add(label1);
+        root.getChildren().add(label2);
+    }
+
     public void endScene() {
-        Label label = new Label(str);
+        Label label = new Label(stringEnd);
         label.setFont(Font.font(32));
         label.setTextFill(Color.WHITESMOKE);
         root.getChildren().clear();
