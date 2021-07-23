@@ -4,7 +4,6 @@ import java.util.HashSet;
 
 public class Player {
     public final static int PLAYER = 1;
-    public final static int PLAYER_TWO = 3;
     public final static int NOT_PLAYER = 0;
     public HashSet<Hex> chips = new HashSet<>();
 

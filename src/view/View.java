@@ -1,5 +1,7 @@
 package view;
 
+import io.GameLoad;
+import io.GameSave;
 import model.*;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -15,26 +17,27 @@ import java.io.*;
 public class View {
     private final Group HexGroup = new Group();
     private final Hex[][] board = new Hex[7][7];
+    private final Model model;
     private final Scene scene;
     private final Trio trio;
-    private final BooleanMut backMove;
-    private final BooleanMut movePlayer;
-    private final IntegerMut gameBot;
+    private boolean movePlayer;
+    private int gameBot;
     private final FlowPane root;
     private String stringEnd;
 
-    public View() {
+    public View(Model model) {
+        this.model = model;
+        model.setBoard(board);
         root = new FlowPane();
         scene = new Scene(root);
         scene.setFill(Color.rgb(2, 32, 39));
         trio = new Trio(null, null, 0);
-        movePlayer = new BooleanMut(true);
-        gameBot = new IntegerMut();
-        backMove = new BooleanMut();
         root.setAlignment(Pos.CENTER);
         root.setPrefSize(800, 600);
         root.setHgap(50);
         root.setStyle("-fx-background-color: null;");
+        gameBot = 0;
+        movePlayer = true;
         startScene();
     }
 
@@ -49,14 +52,11 @@ public class View {
 
         Button button = new Button("LoadSave");
         button.setMaxSize(100, 50);
-        button.setOnMouseClicked((e) -> {
-            backMove.value = true;
-            setBoard(loadGame());
-        });
+        button.setOnMouseClicked((e) -> setBoard(GameLoad.loadGame()));
 
         Button button1 = new Button("SaveGame");
         button1.setMaxSize(100, 50);
-        button1.setOnMouseClicked((e) -> saveGame());
+        button1.setOnMouseClicked((e) -> GameSave.saveGame(board));
 
         root.getChildren().add(button);
         root.getChildren().add(button1);
@@ -75,8 +75,13 @@ public class View {
     private Hex makeHex(int i, int j, int player) {
         Hex hex = new Hex(i, j, player);
         hex.setOnMouseClicked((event) -> {
-            if (hex.getPlayer() == Player.PLAYER && movePlayer.value
-                    || hex.getPlayer() == Bot.BOT && !movePlayer.value) {
+            if (model.endGame()){
+                stringEnd = model.LabelEndGame(gameBot);
+                endScene();
+                return;
+            }
+            if (hex.getPlayer() == Player.PLAYER && movePlayer
+                    || (hex.getPlayer() == Bot.BOT && !movePlayer && gameBot == Player.PLAYER)) {
                 if (hex.getClick()) {
                     hex.setClick(false);
                     trio.setElementary(null);
@@ -95,37 +100,26 @@ public class View {
                 trio.getElementary().setClick(false);
                 illuminationMove(trio.getElementary(), false);
                 trio.setFinite(hex);
+                if(trio.getElementary().getPlayer() == Player.PLAYER)
+                    model.getPlayer().move(trio.getElementary(), trio.getFinite(), board, Player.PLAYER);
+                if(trio.getElementary().getPlayer() == Bot.BOT)
+                    model.getPlayer().move(trio.getElementary(), trio.getFinite(), board, Bot.BOT);
+                trio.setElementary(null);
+                trio.setFinite(null);
+                movePlayer = !movePlayer;
+                if(!model.endGame() && gameBot == Bot.BOT) {
+                    model.getBot().moveBot(board);
+                    movePlayer = true;
+                }
             }
+
         });
         return hex;
     }
 
-    public Hex[][] getBoard() {
-        return board;
-    }
-
-    public Trio getTrio() {
-        return trio;
-    }
 
     public Scene getScene() {
         return scene;
-    }
-
-    public BooleanMut getBackMove() {
-        return backMove;
-    }
-
-    public IntegerMut getGameBot() {
-        return gameBot;
-    }
-
-    public BooleanMut getMovePlayer() {
-        return movePlayer;
-    }
-
-    public void setSrt(String str) {
-        this.stringEnd = str;
     }
 
     private void setChipsStart() {
@@ -148,6 +142,7 @@ public class View {
                     }
                 }
             }
+            model.setBoard(board);
         }
     }
 
@@ -171,11 +166,11 @@ public class View {
         label2.setFont(Font.font(32));
         label2.setTextFill(Color.WHITESMOKE);
         label1.setOnMouseClicked(event -> {
-            gameBot.value = Bot.BOT;
+            gameBot = Bot.BOT;
             create();
         });
         label2.setOnMouseClicked(event -> {
-            gameBot.value = Player.PLAYER;
+            gameBot = Player.PLAYER;
             create();
         });
         root.getChildren().add(label1);

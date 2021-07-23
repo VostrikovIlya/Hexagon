@@ -1,4 +1,9 @@
-package model;
+package test;
+
+import model.Bot;
+import model.Hex;
+import model.Model;
+import model.Player;
 
 public class Test {
     public static int failed;
